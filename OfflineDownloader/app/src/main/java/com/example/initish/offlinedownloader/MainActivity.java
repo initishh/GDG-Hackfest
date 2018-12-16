@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> f = new ArrayList<String>();// list of file paths
     File[] listFile;
     TextView textView;
-    ProgressBar fab;
+    ProgressBar pb;
     CardView cardView;
     File myDir=null;
     int page = 0;
@@ -80,18 +80,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
+    public class ImageDownloader extends AsyncTask<String, Integer, Bitmap> {
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values[0]);
+            pb.setVisibility(View.VISIBLE);
+            pb.setProgress(values[0]);
+        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            fab.setVisibility(View.VISIBLE);
+            pb.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
-            fab.setVisibility(View.INVISIBLE);
+            pb.setVisibility(View.GONE);
         }
 
         @Override
@@ -133,7 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public class DownloadTask extends AsyncTask<String, Void, String> {
+    public class DownloadTask extends AsyncTask<String, Integer, String> {
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values[0]);
+            pb.setProgress(values[0]);
+        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -141,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
             String result="";
             URL url;
             HttpURLConnection httpURLConnection=null;
+
+
 
             try {
                 url = new URL(urls[0]);
@@ -164,19 +179,14 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return "Failed";
             }
-        }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
 
-            fab.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            fab.setVisibility(View.INVISIBLE);
+            pb.setVisibility(View.GONE);
         }
     }
 
@@ -187,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fab=findViewById(R.id.fab);
+        pb=findViewById(R.id.pb);
         cardView = findViewById(R.id.cardView);
         button = findViewById(R.id.button);
         textView = findViewById(R.id.text);
@@ -232,9 +242,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                pb.setVisibility(View.VISIBLE);
+                pb.setProgress(0);
                 task();
 
-//                fab.setVisibility(View.INVISIBLE);
+//                pb.setVisibility(View.INVISIBLE);
                 Toast.makeText(MainActivity.this, "Downloaded", Toast.LENGTH_SHORT).show();
 
                 cardView.setVisibility(View.VISIBLE);
@@ -276,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
         String result="";
         try {
             result = task.execute("https://raw.githubusercontent.com/initishh/WebDev-Projects/master/file.json").get();
+
 
             JSONObject jsonObj = new JSONObject(result);
 
