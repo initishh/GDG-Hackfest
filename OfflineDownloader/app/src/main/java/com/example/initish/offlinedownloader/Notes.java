@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -51,8 +52,8 @@ public class Notes extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!pgnum.getText().toString().isEmpty())
-                    recyclerView.smoothScrollToPosition(Integer.valueOf(pgnum.getText().toString()));
+                if(!pgnum.getText().toString().isEmpty()&& Integer.valueOf(pgnum.getText().toString())>0)
+                    recyclerView.smoothScrollToPosition(Integer.valueOf(pgnum.getText().toString())-1);
                 pgnum.setText(null);
                 hideSoftKeyboard(Notes.this, view); // MainActivity is the name of the class and v is the View parameter used in the button listener method onClick.
             }
@@ -70,10 +71,20 @@ public class Notes extends AppCompatActivity {
 
     private void createDirectoryAndSaveFile(String dir_name) {
 
-        myDir = new File(root + "/"+dir_name);
-//        File myDir = getPrivateAlbumStorageDir(MainActivity.this,"Images");
+//        myDir = new File(root + "/"+dir_name);
+        myDir = getPrivateAlbumStorageDir(getApplicationContext(),"Images/"+dir_name);
         myDir.mkdirs();
         return;
+    }
+
+    public File getPrivateAlbumStorageDir(Context context, String albumName) {
+        // Get the directory for the app's private pictures directory.
+        File file = new File(context.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), albumName);
+        if (!file.mkdirs()) {
+            Log.e("fdsf", "Directory not created");
+        }
+        return file;
     }
 
     private void readFiles() {

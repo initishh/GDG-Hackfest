@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     CardView cardView;
     File myDir=null;
     int page = 0;
+    ImageView testImage;
 
     final String[] name = {""};
     final String[] id = {""};
@@ -85,20 +87,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values[0]);
-            pb.setVisibility(View.VISIBLE);
             pb.setProgress(values[0]);
+            Log.i("LOG_TAG", String.valueOf(values[0]));
         }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pb.setVisibility(View.VISIBLE);
-        }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
-            pb.setVisibility(View.GONE);
         }
 
         @Override
@@ -201,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
         cardView = findViewById(R.id.cardView);
         button = findViewById(R.id.button);
         textView = findViewById(R.id.text);
+        testImage=findViewById(R.id.testImage);
 
 
         try {
@@ -261,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         });
 
-
         cardView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -279,6 +275,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
     }
 
     public void task(){
@@ -368,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void makeFiles(Bitmap imageToSave, File myDir, int page_num){
-
+        Log.i("LOG_TAG", String.valueOf(myDir));
         String fname = "Image-"+Integer.toString(page_num)+".jpg";
         File file = new File(myDir, fname);
         if (file.exists())
@@ -385,10 +383,38 @@ public class MainActivity extends AppCompatActivity {
 
     private void createDirectoryAndSaveFile(String dir_name) {
 
-        myDir = new File(root + "/"+dir_name);
-//        File myDir = getPrivateAlbumStorageDir(MainActivity.this,"Images");
+//        myDir = new File(root + "/"+dir_name);
+        myDir = getPrivateAlbumStorageDir(MainActivity.this,"Images"+"/"+dir_name);
         myDir.mkdirs();
         return;
+    }
+
+    public File getPrivateAlbumStorageDir(Context context, String albumName) {
+        // Get the directory for the app's private pictures directory.
+        File file = new File(context.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), albumName);
+        if (!file.mkdirs()) {
+            Log.e("LOG_TAG", "Directory not created");
+        }
+        return file;
+    }
+
+    private void readFiles() {
+        if (myDir.isDirectory())
+        {
+            listFile = myDir.listFiles();
+            System.out.print("length is : "+listFile.length);
+            for (int i = 0; i < listFile.length; i++){
+
+                f.add(listFile[i].getAbsolutePath());
+                Bitmap myBitmap = BitmapFactory.decodeFile(f.get(i));
+                list.add(myBitmap);
+//                img.setImageBitmap(list.get(i));
+            }
+            testImage.setImageBitmap(list.get(0));
+//            img.setImageBitmap(list.get(0));
+        }
+
     }
 
 }
